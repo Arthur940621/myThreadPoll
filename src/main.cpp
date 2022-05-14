@@ -35,7 +35,7 @@ void monitor(ThreadPool &pool, int seconds) {
 
 int main() {
     // max threads number is 5
-    ThreadPool pool(5); 
+    ThreadPool pool(5);
 
     // monitoring threads number for 13 seconds    
     pool.commit(monitor, std::ref(pool), 13);

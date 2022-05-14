@@ -9,7 +9,7 @@
 #include <atomic>
 #include <future>
 
-#define  THREADPOOL_MAX_NUM 16
+#define THREADPOOL_MAX_NUM 16
 
 class ThreadPool {
 public:

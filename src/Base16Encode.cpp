@@ -71,7 +71,5 @@ int main() {
     duration = duration_cast<milliseconds>(end - start);
     cout  << in_data.size() << "字节数据--多线程编码--花费" << duration.count() << "毫秒" << endl;
 
-    
-
     return 0;
 }
