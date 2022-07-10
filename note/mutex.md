@@ -4,28 +4,28 @@
 
 在 `C++11` 中一共提供了四种 `mutex` 类：
 
-- std::mutex，最基本的 Mutex 类。
-- std::recursive_mutex，递归 Mutex 类。
-- std::time_mutex，定时 Mutex 类。
-- std::recursive_timed_mutex，定时递归 Mutex 类。
+- `std::mutex`，最基本的 `Mutex` 类
+- `std::recursive_mutex`，递归 `Mutex` 类
+- `std::time_mutex`，定时 `Mutex` 类
+- `std::recursive_timed_mutex`，定时递归 `Mutex` 类
 
 两种 `Lock` 类：
 
-- std::lock_guard，与 Mutex RAII 相关，方便线程对互斥量上锁。
-- std::unique_lock，与 Mutex RAII 相关，方便线程对互斥量上锁，但提供了更好的上锁和解锁控
+- `std::lock_guard`，与 `Mutex RAII` 相关，方便线程对互斥量上锁。
+- `std::unique_lock`，与 `Mutex RAII` 相关，方便线程对互斥量上锁，但提供了更好的上锁和解锁控
 
 其他类型：
 
-- std::once_flag
-- std::adopt_lock_t
-- std::defer_lock_t
-- std::try_to_lock_t
+- `std::once_flag`
+- `std::adopt_lock_t`
+- `std::defer_lock_t`
+- `std::try_to_lock_t`
 
 函数：
 
-- std::try_lock，尝试同时对多个互斥量上锁。
-- std::lock，可以同时对多个互斥量上锁。
-- std::call_once，如果多个线程需要同时调用某个函数，call_once 可以保证多个线程对该函数只调用一次。
+- `std::try_lock`，尝试同时对多个互斥量上锁
+- `std::lock`，可以同时对多个互斥量上锁
+- `std::call_once`，如果多个线程需要同时调用某个函数，`call_once` 可以保证多个线程对该函数只调用一次
 
 ## 1. `std::mutex`
 
@@ -40,9 +40,9 @@ void lock();
 ```
 
 调用线程将锁住该互斥量。线程调用该函数会发生下面 `3` 种情况：
-- (1). 如果该互斥量当前没有被锁住，则调用线程将该互斥量锁住，直到调用 unlock之前，该线程一直拥有该锁。
+- (1). 如果该互斥量当前没有被锁住，则调用线程将该互斥量锁住，直到调用 `unlock` 之前，该线程一直拥有该锁。
 - (2). 如果当前互斥量被其他线程锁住，则当前的调用线程被阻塞住。
-- (3). 如果当前互斥量被当前调用线程锁住，则会产生死锁(deadlock)。
+- (3). 如果当前互斥量被当前调用线程锁住，则会产生死锁(`deadlock`)
 
 除了使用 `lock()` 还可以使用 `try_lock()` 获取互斥锁的所有权并对互斥锁加锁，函数原型如下：
 
@@ -53,9 +53,9 @@ bool try_lock();
 二者的区别在于 `try_lock()` 不会阻塞线程，`lock()` 会阻塞线程：
 
 线程调用该函数也会出现下面 `3` 种情况：
-- (1). 如果当前互斥量没有被其他线程占有，则该线程锁住互斥量，直到该线程调用 unlock 释放互斥量。
-- (2). 如果当前互斥量被其他线程锁住，则当前调用线程返回 false，而并不会被阻塞掉。
-- (3). 如果当前互斥量被当前调用线程锁住，则会产生死锁(deadlock)。
+- (1). 如果当前互斥量没有被其他线程占有，则该线程锁住互斥量，直到该线程调用 `unlock` 释放互斥量
+- (2). 如果当前互斥量被其他线程锁住，则当前调用线程返回 `false`，而并不会被阻塞掉
+- (3). 如果当前互斥量被当前调用线程锁住，则会产生死锁(`deadlock`)
 
 当互斥锁被锁定之后可以通过 `unlock()` 进行解锁，但是需要注意的是只有拥有互斥锁所有权的线程也就是对互斥锁上锁的线程才能将其解锁，其它线程是没有权限做这件事情的。该函数的函数原型如下：
 
@@ -67,8 +67,8 @@ void unlock();
 
 - 找到多个线程操作的共享资源（全局变量、堆内存、类成员变量等），也可以称之为临界资源
 - 找到和共享资源有关的上下文代码，也就是临界区（下图中的黄色代码部分）
-- 在临界区的上边调用互斥锁类的 lock() 方法
-- 在临界区的下边调用互斥锁的 unlock() 方法
+- 在临界区的上边调用互斥锁类的 `lock()` 方法
+- 在临界区的下边调用互斥锁的 `unlock()` 方法
 
 线程同步的目的是让多线程按照顺序依次执行临界区代码，这样做线程对共享资源的访问就从并行访问变为了线性访问，访问效率降低了，但是保证了数据的正确性。
 
@@ -155,9 +155,9 @@ int main() {
 
 虽然递归互斥锁可以解决同一个互斥锁频繁获取互斥锁资源的问题，但是还是建议少用，主要原因如下：
 
-- 使用递归互斥锁的场景往往都是可以简化的，使用递归互斥锁很容易放纵复杂逻辑的产生，从而导致 bug 的产生
-- 递归互斥锁比非递归互斥锁效率要低一些。
-- 递归互斥锁虽然允许同一个线程多次获得同一个互斥锁的所有权，但最大次数并未具体说明，一旦超过一定的次数，就会抛出 std::system 错误。
+- 使用递归互斥锁的场景往往都是可以简化的，使用递归互斥锁很容易放纵复杂逻辑的产生，从而导致 `bug` 的产生
+- 递归互斥锁比非递归互斥锁效率要低一些
+- 递归互斥锁虽然允许同一个线程多次获得同一个互斥锁的所有权，但最大次数并未具体说明，一旦超过一定的次数，就会抛出 `std::system` 错误
 
 ## 3. `std::timed_mutex`
 
@@ -178,8 +178,8 @@ template <class Clock, class Duration>
   bool try_lock_until (const chrono::time_point<Clock,Duration>& abs_time);
 ```
 
-- try_lock_for 函数接受一个时间范围，表示在这一段时间范围之内线程如果没有获得锁则被阻塞住（与 std::mutex 的 try_lock() 不同，try_lock 如果被调用时没有获得锁则直接返回 false），如果在此期间其他线程释放了锁，则该线程可以获得对互斥量的锁，如果超时（即在指定时间内还是没有获得锁），则返回 false。
-- try_lock_until 函数则接受一个时间点作为参数，在指定时间点未到来之前线程如果没有获得锁则被阻塞住，如果在此期间其他线程释放了锁，则该线程可以获得对互斥量的锁，如果超时（即在指定时间内还是没有获得锁），则返回 false。
+- `try_lock_for` 函数接受一个时间范围，表示在这一段时间范围之内线程如果没有获得锁则被阻塞住（与` std::mutex` 的 `try_lock()` 不同，`try_lock` 如果被调用时没有获得锁则直接返回 `false`），如果在此期间其他线程释放了锁，则该线程可以获得对互斥量的锁，如果超时（即在指定时间内还是没有获得锁），则返回 `false`
+- `try_lock_until` 函数则接受一个时间点作为参数，在指定时间点未到来之前线程如果没有获得锁则被阻塞住，如果在此期间其他线程释放了锁，则该线程可以获得对互斥量的锁，如果超时（即在指定时间内还是没有获得锁），则返回 `false`
 
 示例：
 
@@ -252,23 +252,23 @@ int main() {
 
 另外还提供了几个与锁类型相关的 `Tag` 类，分别如下:
 
-- std::adopt_lock_t，一个空的标记类，定义如下：
-    - struct adopt_lock_t {};
-    - 该类型的常量对象 adopt_lock（adopt_lock 是一个常量对象，定义如下：
-      - constexpr adopt_lock_t adopt_lock {};
-    - 通常作为参数传入给 unique_lock 或 lock_guard 的构造函数。
+- `std::adopt_lock_t`，一个空的标记类，定义如下：
+    - `struct adopt_lock_t {};`
+    - 该类型的常量对象 `adopt_lock`（`adopt_lock` 是一个常量对象，定义如下：
+      - `constexpr adopt_lock_t adopt_lock {};`
+    - 通常作为参数传入给 `unique_lock` 或 `lock_guard` 的构造函数
 
-- std::defer_lock_t，一个空的标记类，定义如下： 
-  - struct defer_lock_t {};
-  - 该类型的常量对象 defer_lock（defer_lock 是一个常量对象，定义如下：
-    - constexpr defer_lock_t defer_lock {};
-  - 通常作为参数传入给 unique_lock 或 lock_guard 的构造函数。
+- `std::defer_lock_t`，一个空的标记类，定义如下： 
+  - `struct defer_lock_t {};`
+  - 该类型的常量对象 `defer_lock`（`defer_lock` 是一个常量对象，定义如下：
+    - `constexpr defer_lock_t defer_lock {};`
+  - 通常作为参数传入给 `unique_lock` 或 `lock_guard` 的构造函数
 
-- std::try_to_lock_t，一个空的标记类，定义如下：
-  - struct try_to_lock_t {};
-  - 该类型的常量对象 try_to_lock（try_to_lock 是一个常量对象，定义如下：
-    - constexpr try_to_lock_t try_to_lock {};
-  - 通常作为参数传入给 unique_lock 或 lock_guard 的构造函数。
+- `std::try_to_lock_t`，一个空的标记类，定义如下：
+  - `struct try_to_lock_t {};`
+  - 该类型的常量对象` try_to_lock`（`try_to_lock` 是一个常量对象，定义如下：
+    - `constexpr try_to_lock_t try_to_lock {};`
+  - 通常作为参数传入给 `unique_lock` 或 `lock_guard` 的构造函数
 
 `std::lock_gurad` 是 `C++11` 中定义的模板类。定义如下：
 
@@ -295,12 +295,12 @@ lock_guard (mutex_type& m, adopt_lock_t tag);
 lock_guard (const lock_guard&) = delete;
 ```
 
-- locking 初始化
-  - lock_guard 对象管理 Mutex 对象 m，并在构造时对 m 进行上锁（调用 m.lock()）。
-- adopting 初始化
-  - lock_guard 对象管理 Mutex 对象 m，与 locking 初始化 (1) 不同的是， Mutex 对象 m 已被当前线程锁住。
+- `locking` 初始化
+  - `lock_guard` 对象管理 `Mutex` 对象 `m`，并在构造时对 `m` 进行上锁（调用 `m.lock()`）
+- `adopting` 初始化
+  - `lock_guard` 对象管理 `Mutex` 对象 `m`，与 `locking` 初始化 (1) 不同的是，`Mutex` 对象 `m` 已被当前线程锁住
 - 拷贝构造
-- lock_guard 对象的拷贝构造和移动构造(move construction) 均被禁用，因此 lock_guard 对象不可被拷贝构造或移动构造。
+- `lock_guard` 对象的拷贝构造和移动构造(`move construction`) 均被禁用，因此 `lock_guard` 对象不可被拷贝构造或移动构造
 
 ```cpp
 #include <iostream>       // std::cout
@@ -409,25 +409,25 @@ unique_lock(unique_lock&& x);
 下面我们来分别介绍以上各个构造函数：
 
 - (1) 默认构造函数
-  - 新创建的 unique_lock 对象不管理任何 Mutex 对象。
-- (2) locking 初始化
-  - 新创建的 unique_lock 对象管理 Mutex 对象 m，并尝试调用 m.lock() 对 Mutex 对象进行上锁，如果此时另外某个 unique_lock 对象已经管理了该 Mutex 对象 m，则当前线程将会被阻塞。
-- (3) try-locking 初始化
-  - 新创建的 unique_lock 对象管理 Mutex 对象 m，并尝试调用 m.try_lock() 对 Mutex 对象进行上锁，但如果上锁不成功，并不会阻塞当前线程。
-- (4) deferred 初始化
-  - 新创建的 unique_lock 对象管理 Mutex 对象 m，但是在初始化的时候并不锁住 Mutex 对象。 m 应该是一个没有当前线程锁住的 Mutex 对象。
-- (5) adopting 初始化
-  - 新创建的 unique_lock 对象管理 Mutex 对象 m， m 应该是一个已经被当前线程锁住的 Mutex 对象。(并且当前新创建的 unique_lock 对象拥有对锁(Lock)的所有权)。
-- (6) locking 一段时间(duration)
-  - 新创建的 unique_lock 对象管理 Mutex 对象 m，并试图通过调用 m.try_lock_for(rel_time) 来锁住 Mutex 对象一段时间(rel_time)。
-- (7) locking 直到某个时间点(time point)
-  - 新创建的 unique_lock 对象管理 Mutex 对象 m，并试图通过调用 m.try_lock_until(abs_time) 来在某个时间点(abs_time)之前锁住 Mutex 对象。
-- (8) 拷贝构造 [被禁用]
-  - unique_lock 对象不能被拷贝构造。
-- (9) 移动(move)构造
-  - 新创建的 unique_lock 对象获得了由 x 所管理的 Mutex 对象的所有权(包括当前 Mutex 的状态)。调用 move 构造之后， x 对象如同通过默认构造函数所创建的，就不再管理任何 Mutex 对象了。
+  - 新创建的 `unique_lock` 对象不管理任何 `Mutex` 对象
+- (2) `locking` 初始化
+  - 新创建的 `unique_lock` 对象管理 `Mutex` 对象 `m`，并尝试调用 `m.lock()` 对 `Mutex` 对象进行上锁，如果此时另外某个 `unique_lock` 对象已经管理了该 Mutex 对象 `m`，则当前线程将会被阻塞。
+- (3) `try-locking` 初始化
+  - 新创建的 `unique_lock` 对象管理 `Mutex` 对象 `m`，并尝试调用 `m.try_lock()` 对 `Mutex` 对象进行上锁，但如果上锁不成功，并不会阻塞当前线程
+- (4) `deferred` 初始化
+  - 新创建的 `unique_lock` 对象管理 `Mutex` 对象 `m`，但是在初始化的时候并不锁住 `Mutex` 对象。`m` 应该是一个没有当前线程锁住的 `Mutex` 对象
+- (5) `adopting` 初始化
+  - 新创建的 `unique_lock` 对象管理 `Mutex` 对象 `m`，`m` 应该是一个已经被当前线程锁住的 Mutex 对象。（并且当前新创建的 `unique_lock` 对象拥有对锁(`Lock`)的所有权）。
+- (6) `locking` 一段时间(`duration`)
+  - 新创建的 `unique_lock` 对象管理 `Mutex` 对象 `m`，并试图通过调用 `m.try_lock_for(rel_time)` 来锁住 `Mutex` 对象一段时间(`rel_time`)
+- (7) `locking` 直到某个时间点(`time point`)
+  - 新创建的 `unique_lock` `对象管理` Mutex 对象 `m`，并试图通过调用 `m.try_lock_until(abs_time)` 来在某个时间点(`abs_time`)之前锁住 `Mutex` 对象
+- (8) 拷贝构造 `[被禁用]`
+  - `unique_lock` 对象不能被拷贝构造
+- (9) 移动(`move`)构造
+  - 新创建的 `unique_lock` 对象获得了由 `x` 所管理的 `Mutex` 对象的所有权(包括当前 `Mutex` 的状态)。调用 `move` 构造之后，`x` 对象如同通过默认构造函数所创建的，就不再管理任何 `Mutex` 对象了
   
-综上所述，由 (2) 和 (5) 创建的 unique_lock 对象通常拥有 Mutex 对象的锁。而通过 (1) 和 (4) 创建的则不会拥有锁。通过 (3)，(6) 和 (7) 创建的 unique_lock 对象，则在 lock 成功时获得锁。
+综上所述，由 (2) 和 (5) 创建的 `unique_lock` 对象通常拥有 `Mutex` 对象的锁。而通过 (1) 和 (4) 创建的则不会拥有锁。通过 (3)，(6) 和 (7) 创建的 `unique_lock` 对象，则在 `lock` 成功时获得锁。
 
 ```cpp
 #include <iostream>       // std::cout
@@ -477,9 +477,9 @@ unique_lock& operator= (unique_lock&& x) noexcept;
 unique_lock& operator= (const unique_lock&) = delete;
 ```
 
-- 移动赋值之后，由 `x` 所管理的 `Mutex` 对象及其状态将会被新的 `std::unique_lock` 对象取代。
-- 如果被赋值的对象之前已经获得了它所管理的 `Mutex` 对象的锁，则在移动赋值之前会调用 `unlock` 函数释放它所占有的锁。
-- 调用移动赋值之后， `x` 对象如同通过默认构造函数所创建的，也就不再管理任何 `Mutex` 对象了。
+- 移动赋值之后，由 `x` 所管理的 `Mutex` 对象及其状态将会被新的 `std::unique_lock` 对象取代
+- 如果被赋值的对象之前已经获得了它所管理的 `Mutex` 对象的锁，则在移动赋值之前会调用 `unlock` 函数释放它所占有的锁
+- 调用移动赋值之后，`x` 对象如同通过默认构造函数所创建的，也就不再管理任何 `Mutex` 对象了
 
 ```cpp
 #include <iostream>       // std::cout
@@ -507,9 +507,9 @@ int main () {
 ```
 `std::unique_lock` 主要成员函数：
 
-- 上锁/解锁操作：lock，try_lock，try_lock_for，try_lock_until 和 unlock
-- 修改操作：移动赋值，交换(swap)（与另一个 std::unique_lock 对象交换它们所管理的 Mutex 对象的所有权），释放(release)（返回指向它所管理的 Mutex 对象的指针，并释放所有权）
-- 获取属性操作：owns_lock（返回当前 std::unique_lock 对象是否获得了锁）、operator bool()（与 owns_lock 功能相同，返回当前 std::unique_lock 对象是否获得了锁）、mutex（返回当前 std::unique_lock 对象所管理的 Mutex 对象的指针）。
+- 上锁/解锁操作：`lock`，`try_lock`，`try_lock_for`，`try_lock_until` 和 `unlock`
+- 修改操作：移动赋值，交换(`swap`)（与另一个 `std::unique_lock` 对象交换它们所管理的 `Mutex` 对象的所有权），释放(`release`)（返回指向它所管理的 `Mutex` 对象的指针，并释放所有权）
+- 获取属性操作：`owns_lock`（返回当前 `std::unique_lock` 对象是否获得了锁）、`operator bool()`（与 `owns_lock` 功能相同，返回当前 `std::unique_lock` 对象是否获得了锁）、`mutex`（返回当前 `std::unique_lock` 对象所管理的 `Mutex` 对象的指针）
 
 `std::unique_lock::lock`：
 

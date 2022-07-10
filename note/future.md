@@ -2,10 +2,10 @@
 
 <future> 头文件中包含了以下几个类和函数：
 
-- Providers 类：std::promise, std::packaged_task
-- Futures 类：std::future, shared_future
-- Providers 函数：std::async()
-- 其他类型：std::future_error, std::future_errc, std::future_status, std::launch
+- `Providers` 类：`std::promise`, `std::packaged_task`
+- `Futures` 类：`std::future`, `shared_future`
+- `Providers` 函数：`std::async()`
+- 其他类型：`std::future_error`, `std::future_errc`, `std::future_status`, `std::launch`
 
 ## 1. `std::promise`
 
@@ -49,10 +49,10 @@ promise (const promise&) = delete;
 promise (promise&& x) noexcept;
 ```
 
-- 默认构造函数，初始化一个空的共享状态。
-- 带自定义内存分配器的构造函数，与默认构造函数类似，但是使用自定义分配器来分配共享状态。
-- 拷贝构造函数，被禁用。
-- 移动构造函数。
+- 默认构造函数，初始化一个空的共享状态
+- 带自定义内存分配器的构造函数，与默认构造函数类似，但是使用自定义分配器来分配共享状态
+- 拷贝构造函数，被禁用
+- 移动构造函数
 
 另外，`std::promise` 的 `operator=` 没有拷贝语义，即 `std::promise` 普通的赋值操作被禁用，`operator=` 只有 `move` 语义，所以 `std::promise` 对象是禁止拷贝的。
 
@@ -163,9 +163,9 @@ int main () {
 可以通过 `std::packged_task::get_future` 来获取与共享状态相关联的 `std::future` 对象。在调用该函数之后，两个对象共享相同的共享状态，具体解释如下：
 
 - `std::packaged_task` 对象是异步 `Provider`，它在某一时刻通过调用被包装的任务来设置共享状态的值。
-`std::future` 对象是一个异步返回对象，通过它可以获得共享状态的值，在必要的时候需要等待共享状态标志变为 `ready`。
+`std::future` 对象是一个异步返回对象，通过它可以获得共享状态的值，在必要的时候需要等待共享状态标志变为 `ready`
 
-- `std::packaged_task` 的共享状态的生命周期一直持续到最后一个与之相关联的对象被释放或者销毁为止。
+- `std::packaged_task` 的共享状态的生命周期一直持续到最后一个与之相关联的对象被释放或者销毁为止
 
 ```cpp
 #include <iostream>     // std::cout
@@ -217,11 +217,11 @@ packaged_task (packaged_task&& x) noexcept;
 
 `std::packaged_task` 构造函数共有 `5` 种形式，不过拷贝构造已经被禁用了。下面简单地介绍一下上述几种构造函数的语义：
 
-- 默认构造函数，初始化一个空的共享状态，并且该 `packaged_task` 对象无包装任务。
-- 初始化一个共享状态，并且被包装任务由参数 `fn` 指定。
-- 带自定义内存分配器的构造函数，与默认构造函数类似，但是使用自定义分配器来分配共享状态。
-- 拷贝构造函数，被禁用。
-- 移动构造函数。
+- 默认构造函数，初始化一个空的共享状态，并且该 `packaged_task` 对象无包装任务
+- 初始化一个共享状态，并且被包装任务由参数 `fn` 指定
+- 带自定义内存分配器的构造函数，与默认构造函数类似，但是使用自定义分配器来分配共享状态
+- 拷贝构造函数，被禁用
+- 移动构造函数
 
 ```cpp
 #include <iostream>     // std::cout
@@ -293,7 +293,7 @@ int main () {
 #include <thread>       // std::thread
 
 int main () {
-    std::packaged_task<int(int)> tsk([](int x) { return x * 3; })); // package task
+    std::packaged_task<int(int)> tsk([](int x) { return x * 3; }); // package task
 
     std::future<int> fut = tsk.get_future();   // 获取 future 对象.
 
@@ -311,19 +311,19 @@ int main () {
 
 调用该 `packaged_task` 对象所包装的对象（通常为函数指针，函数对象，`lambda` 表达式等），传入的参数为 `args`，调用该函数一般会发生两种情况：
 
-- 如果成功调用 packaged_task 所包装的对象，则返回值（如果被包装的对象有返回值的话）被保存在 packaged_task 的共享状态中。
-- 如果调用 packaged_task 所包装的对象失败，并且抛出了异常，则异常也会被保存在 packaged_task 的共享状态中。
+- 如果成功调用 `packaged_task` 所包装的对象，则返回值（如果被包装的对象有返回值的话）被保存在 `packaged_task` 的共享状态中
+- 如果调用 `packaged_task` 所包装的对象失败，并且抛出了异常，则异常也会被保存在 `packaged_task` 的共享状态中
 
-以上两种情况都使共享状态的标志变为 `ready`，因此其他等待该共享状态的线程可以获取共享状态的值或者异常并继续执行下去。
+以上两种情况都使共享状态的标志变为 `ready`，因此其他等待该共享状态的线程可以获取共享状态的值或者异常并继续执行下去
 
 共享状态的值可以通过在 `future` 对象（由 `get_future` 获得）上调用 `get` 来获得。
 
 由于被包装的任务在 `packaged_task` 构造时指定，因此调用 `operator()` 的效果由 `packaged_task` 对象构造时所指定的可调用对象来决定：
 
-- 如果被包装的任务是函数指针或者函数对象，调用 `std::packaged_task::operator()` 只是将参数传递给被包装的对象。
+- 如果被包装的任务是函数指针或者函数对象，调用 `std::packaged_task::operator()` 只是将参数传递给被包装的对象
 
-- 如果被包装的任务是指向类的非静态成员函数的指针，那么 `std::packaged_task::operator()` 的第一个参数应该指定为成员函数被调用的那个对象，剩余的参数作为该成员函数的参数。
-如果被包装的任务是指向类的非静态成员变量，那么 `std::packaged_task::operator()` 只允许单个参数。
+- 如果被包装的任务是指向类的非静态成员函数的指针，那么 `std::packaged_task::operator()` 的第一个参数应该指定为成员函数被调用的那个对象，剩余的参数作为该成员函数的参数
+如果被包装的任务是指向类的非静态成员变量，那么 `std::packaged_task::operator()` 只允许单个参数
 
 
 `std::packaged_task::make_ready_at_thread_exit`
@@ -377,9 +377,9 @@ int main () {
 
 一个有效（`valid`）的 `std::future` 对象通常由以下三种 `Provider` 创建，并和某个共享状态相关联。`Provider` 可以是函数或者类，其实我们前面都已经提到了，他们分别是：
 
-- std::async 函数。
-- std::promise::get_future，get_future 为 promise 类的成员函数。
-- std::packaged_task::get_future，此时 get_future为 packaged_task 的成员函数。
+- `std::async` 函数
+- `std::promise::get_future`，`get_future 为 promise` 类的成员函数
+- `std::packaged_task::get_future`，此时 `get_future` 为 `packaged_task` 的成员函数
 
 一个 `std::future` 对象只有在有效的情况下才有用，由 `std::future` 默认构造函数创建的 `future` 对象不是有效的（除非当前非有效的 `future` 对象被 `move` 赋值另一个有效的 `future` 对象）。
 
@@ -601,17 +601,17 @@ shared_future (future<T>&& x) noexcept;
 `std::shared_future` 的成员函数和 `std::future` 大部分相同，如下：
 
 `operator=`
-- 赋值操作符，与 std::future 的赋值操作不同，std::shared_future 除了支持 move 赋值操作外，还支持普通的赋值操作。
-- get
-获取与该 std::shared_future 对象相关联的共享状态的值（或者异常）。
-- valid
-有效性检查。
-- wait
-等待与该 std::shared_future 对象相关联的共享状态的标志变为 ready。
-- wait_for
-等待与该 std::shared_future 对象相关联的共享状态的标志变为 ready。（等待一段时间，超过该时间段wait_for 返回。）
-- wait_until
-等待与该 std::shared_future 对象相关联的共享状态的标志变为 ready。（在某一时刻前等待，超过该时刻 wait_until 返回。）
+- 赋值操作符，与 `std::future` 的赋值操作不同，`std::shared_future` 除了支持 `move` 赋值操作外，还支持普通的赋值操作
+- `get`
+获取与该 `std::shared_future` 对象相关联的共享状态的值（或者异常）
+- `valid`
+有效性检查
+- `wait`
+等待与该 `std::shared_future` 对象相关联的共享状态的标志变为 `ready`
+- `wait_for`
+等待与该 `std::shared_future` 对象相关联的共享状态的标志变为 `ready`（等待一段时间，超过该时间段 `wait_for` 返回）
+- `wait_until`
+等待与该 `std::shared_future` 对象相关联的共享状态的标志变为 `ready`（在某一时刻前等待，超过该时刻 `wait_until` 返回）
 
 `std::future_error`
 
@@ -696,7 +696,7 @@ enum class launch;
 
 下面分别介绍以上三种枚举类型：
 
-std::future_errc 类型：
+`std::future_errc` 类型：
 
 |类型|取值|描述|
 |-|-|-|
@@ -763,6 +763,6 @@ int main() {
 
 总结：
 
-- 使用 async () 函数，是多线程操作中最简单的一种方式，不需要自己创建线程对象，并且可以得到子线程函数的返回值。
-- 使用 std::promise 类，在子线程中可以传出返回值也可以传出其他数据，并且可选择在什么时机将数据从子线程中传递出来，使用起来更灵活。
-- 使用 std::packaged_task 类，可以将子线程的任务函数进行包装，并且可以得到子线程的返回值。
+- 使用 `async()` 函数，是多线程操作中最简单的一种方式，不需要自己创建线程对象，并且可以得到子线程函数的返回值。
+- 使用 `std::promise` 类，在子线程中可以传出返回值也可以传出其他数据，并且可选择在什么时机将数据从子线程中传递出来，使用起来更灵活
+- 使用 `std::packaged_task` 类，可以将子线程的任务函数进行包装，并且可以得到子线程的返回值
